@@ -46,11 +46,11 @@ export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX,
         const updateTopNExamples = (examples = [], distances = [], newExample, newDistance, topN = 3) => {
             let n = examples?.length;
         
-            // Insert newDistance and newExample maintaining sorted distances
+            // Insert newDistance and newExample to respective arrays, maintain distances in ascending order
             for (let i = 0; i <= n; i++) {
                 if (i === n || newDistance < distances[i]) {
-                    distances.splice(i, 0, newDistance); // Insert newDistance at correct position
-                    examples.splice(i, 0, newExample);   // Insert newExample at the same position
+                    distances.splice(i, 0, newDistance);
+                    examples.splice(i, 0, newExample);
                     break;
                 }
             }

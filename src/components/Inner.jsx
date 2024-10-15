@@ -89,10 +89,10 @@ export default function Inner({ data, model, predictions, epoch }) {
                                 return (
                                     <g key={`point_${i}`}>
                                         <text
-                                            x={point[0]} y={point[1]}
+                                            x={xScale(point[0])} y={yScale(point[1])}
                                             fontSize={similarExamples.length === 0 ? 9 : (isSimilar || isDifferent) ? 14 : 9}
-                                            opacity={similarExamples.length === 0 || isSimilar || isDifferent ? 1 : 0.5} // Highlight similar or different points
-                                            fill={isSimilar ? 'green' : isDifferent ? 'red' : 'black'}  // Color similar as green, different as red, others as black
+                                            opacity={similarExamples.length === 0 || isSimilar || isDifferent ? 1 : 0.5}
+                                            fill={colorScale(groundTruth[i])}
                                         >
                                             {groundTruth[i]}
                                         </text>

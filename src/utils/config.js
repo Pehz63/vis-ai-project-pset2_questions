@@ -10,13 +10,13 @@ export const NUM_TEST_ELEMENTS = NUM_DATASET_ELEMENTS - NUM_TRAIN_ELEMENTS;
 
 export const BATCH_SIZE = 64;
 
-export const SAMPLE_RATIO = 0.15
-export const TRAIN_EPOCHS = 3;
-export const BATCH_STEP = 10 // save the log every certain batches
+// export const SAMPLE_RATIO = 0.15
+// export const TRAIN_EPOCHS = 3;
+// export const BATCH_STEP = 10 // save the log every certain batches
 // if the model is slow, you can reduce the number of training examples but need to increase the number of epochs and reduce the batch step
-// export const SAMPLE_RATIO = 0.01
-// export const TRAIN_EPOCHS = 40;
-// export const BATCH_STEP = 2;
+export const SAMPLE_RATIO = 0.01
+export const TRAIN_EPOCHS = 40;
+export const BATCH_STEP = 2;
 
 export const SAMPLE_TRAIN_ELEMENTS = NUM_TRAIN_ELEMENTS * SAMPLE_RATIO
 export const SAMPLE_TEST_ELEMENTS = NUM_TEST_ELEMENTS * SAMPLE_RATIO;
