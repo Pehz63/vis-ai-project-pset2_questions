@@ -5,15 +5,15 @@ import * as d3 from 'd3';
 import { NUM_CLASSES } from '../utils/config'
 import { createModelWithInnerOutputs } from "../utils/model";
 
-export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX, data, similarExamples, differentExamples, setSimilarExamples, setDifferentExamples }) {
+export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX, data }) {
 
     const drawWidth = 150, drawHeight = 150, margin = 10;
     const barChartHeight = 180, barChartWidth = 100;
     const drawingRef = useRef(null);
     const [newPrediction, setNewPrediction] = useState(null);
-    // const [prediction, setPrediction] = useState(null);
-    // const [similarExamples, setSimilarExamples] = useState([]); // indices of similar examples with the same label
-    // const [differentExamples, setDifferentExamples] = useState([]); // indices of similar examples with different labels
+    const [prediction, setPrediction] = useState(null);
+    const [similarExamples, setSimilarExamples] = useState([]); // indices of similar examples with the same label
+    const [differentExamples, setDifferentExamples] = useState([]); // indices of similar examples with different labels
 
     const clearCanvas = () => {
         drawingRef.current.clearCanvas();
@@ -43,26 +43,41 @@ export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX,
 
         // pset 2.3: find similar and counterfactual examples, update sameLabelExamples and differentLabelExamples
 
-        // const updateTopNExamples = (examples, distances, newExample, newDistance, topN = 3) => {
-        //     xxx
-        // };
+        const updateTopNExamples = (examples = [], distances = [], newExample, newDistance, topN = 3) => {
+            let n = examples?.length;
+        
+            // Insert newDistance and newExample maintaining sorted distances
+            for (let i = 0; i <= n; i++) {
+                if (i === n || newDistance < distances[i]) {
+                    distances.splice(i, 0, newDistance); // Insert newDistance at correct position
+                    examples.splice(i, 0, newExample);   // Insert newExample at the same position
+                    break;
+                }
+            }
+        
+            // Truncate arrays to the first topN elements
+            return {
+                examples: examples.slice(0, topN),
+                distances: distances.slice(0, topN)
+            };
+        };        
 
-        // const calculateL2Distance = (a, b) => {
-        //     return a.reduce((acc, curr, i) => acc + Math.pow(curr - b[i], 2), 0);
-        // };
+        const calculateL2Distance = (a, b) => {
+            return a.reduce((acc, curr, i) => acc + Math.pow(curr - b[i], 2), 0);
+        };
 
-        // innerOutputs.forEach((example, index) => {
-        //     const distance = calculateL2Distance(example, currentOutput); // (optional): try different distance metrics
-        // if (groundTruth[index] === currentLabel) {
-        //     const updatedSameLabel = updateTopNExamples(sameLabelExamples, sameLabelDistances, index, distance);
-        //     sameLabelExamples = updatedSameLabel.examples;
-        //     sameLabelDistances = updatedSameLabel.distances;
-        // } else {
-        //     const updatedDifferentLabel = updateTopNExamples(differentLabelExamples, differentLabelDistances, index, distance);
-        //     differentLabelExamples = updatedDifferentLabel.examples;
-        //     differentLabelDistances = updatedDifferentLabel.distances;
-        // }
-        // })
+        innerOutputs.forEach((example, index) => {
+            const distance = calculateL2Distance(example, currentOutput); // (optional): try different distance metrics
+            if (groundTruth[index] === currentLabel) {
+                const updatedSameLabel = updateTopNExamples(sameLabelExamples, sameLabelDistances, index, distance);
+                sameLabelExamples = updatedSameLabel.examples;
+                sameLabelDistances = updatedSameLabel.distances;
+            } else {
+                const updatedDifferentLabel = updateTopNExamples(differentLabelExamples, differentLabelDistances, index, distance);
+                differentLabelExamples = updatedDifferentLabel.examples;
+                differentLabelDistances = updatedDifferentLabel.distances;
+            }
+        })
         // end of pset 2.3
 
         setDifferentExamples(differentLabelExamples);
@@ -113,7 +128,7 @@ export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX,
             </div>
             :
             <div style={{ display: 'inline-block', height: { drawHeight } }}>
-                <h3>Waiting for fetching examples</h3>
+                <h3>Fetching examples...</h3>
             </div>}
     </div>
 }
