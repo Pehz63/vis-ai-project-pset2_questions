@@ -5,15 +5,15 @@ import * as d3 from 'd3';
 import { NUM_CLASSES } from '../utils/config'
 import { createModelWithInnerOutputs } from "../utils/model";
 
-export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX, data }) {
+export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX, data, similarExamples, differentExamples, setSimilarExamples, setDifferentExamples }) {
 
     const drawWidth = 150, drawHeight = 150, margin = 10;
     const barChartHeight = 180, barChartWidth = 100;
     const drawingRef = useRef(null);
     const [newPrediction, setNewPrediction] = useState(null);
     const [prediction, setPrediction] = useState(null);
-    const [similarExamples, setSimilarExamples] = useState([]); // indices of similar examples with the same label
-    const [differentExamples, setDifferentExamples] = useState([]); // indices of similar examples with different labels
+    // const [similarExamples, setSimilarExamples] = useState([]); // indices of similar examples with the same label
+    // const [differentExamples, setDifferentExamples] = useState([]); // indices of similar examples with different labels
 
     const clearCanvas = () => {
         drawingRef.current.clearCanvas();
@@ -39,7 +39,7 @@ export default function Testing({ model, groundTruth, innerOutputs, LAYER_INDEX,
         let differentLabelDistances = [];
 
         const modelWithInnerOutputs = createModelWithInnerOutputs(model);
-        const currentOutput = modelWithInnerOutputs.predict(tensor)[LAYER_INDEX].arraySync();
+        const currentOutput = modelWithInnerOutputs.predict(tensor)[LAYER_INDEX].arraySync()[0];
 
         // pset 2.3: find similar and counterfactual examples, update sameLabelExamples and differentLabelExamples
 
