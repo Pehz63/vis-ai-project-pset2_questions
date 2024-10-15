@@ -92,7 +92,7 @@ export default function Inner({ data, model, predictions, epoch }) {
                                             x={xScale(point[0])} y={yScale(point[1])}
                                             fontSize={similarExamples.length === 0 ? 9 : (isSimilar || isDifferent) ? 14 : 9}
                                             opacity={similarExamples.length === 0 || isSimilar || isDifferent ? 1 : 0.5}
-                                            fill={similarExamples.length === 0 ? colorScale(groundTruth[i]) : similarExamples.includes(i) ? 'red' : differentExamples.includes(i) ? 'blue' : 'lightgray'}
+                                            fill={similarExamples.length === 0 ? colorScale(groundTruth[i]) : similarExamples.includes(i) ? 'blue' : differentExamples.includes(i) ? 'red' : 'lightgray'}
                                         >
                                             {groundTruth[i]}
                                         </text>
