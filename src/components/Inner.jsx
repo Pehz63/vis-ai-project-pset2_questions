@@ -1,5 +1,6 @@
 import { UMAP } from "umap-js"
 import * as d3 from "d3"
+import { TRAIN_EPOCHS } from '../utils/config';
 import { createModelWithInnerOutputs } from '../utils/model'
 import { useEffect, useState } from "react";
 import Testing from './NewDataTest'
@@ -27,7 +28,28 @@ export default function Inner({ data, model, predictions, epoch }) {
 
     const normalizeEmbedding = (embedding) => {
         // pset 2.1: normalize both x, y the range [-1, 1]
-    }
+
+        // Find the min and max values for x and y across all points in the embedding
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+        for (const [x, y] of embedding) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+        }
+
+        // Define a function to normalize a value to the range [-1, 1]
+        const normalize = (value, min, max) => {
+            return ((value - min) / (max - min)) * 2 - 1;
+        };
+
+        // Normalize all points in the embedding
+        return embedding.map(([x, y]) => [
+            normalize(x, minX, maxX), // normalize x to [-1, 1]
+            normalize(y, minY, maxY)  // normalize y to [-1, 1]
+        ]);
+    };
 
     const xScale = d3.scaleLinear().domain([-1, 1]).range([margin, width - margin]);
     const yScale = d3.scaleLinear().domain([-1, 1]).range([margin, height - margin]);
@@ -39,10 +61,10 @@ export default function Inner({ data, model, predictions, epoch }) {
 
             // pset 2.1: generate UMAP embeddings, https://github.com/PAIR-code/umap-js
 
-            // const umap = new UMAP({ nComponents: 2, nNeighbors: xx, minDist: xxx, nEpochs: xx });
-            // const embedding = await umap.fitAsync(outputArray);
-            // const normalizedEmbedding = normalizeEmbedding(embedding);
-            // setEmbeddings(normalizedEmbedding)
+            const umap = new UMAP({ nComponents: 2, nNeighbors: 15, minDist: 0.1, nEpochs: TRAIN_EPOCHS });
+            const embedding = await umap.fitAsync(outputArray);
+            const normalizedEmbedding = normalizeEmbedding(embedding);
+            setEmbeddings(normalizedEmbedding);
             // end of pset 2.1
 
         };
@@ -62,18 +84,18 @@ export default function Inner({ data, model, predictions, epoch }) {
                         <g key={`embedding`} transform={`translate(${(margin)}, 0)`}>
                             <rect x={0} y={0} width={width} height={height} fill='white' stroke="black" className="background"></rect>
                             {/* pset 2.2: draw embeddings */}
-                            {/* {embeddings.map((point, i) => {
+                            {embeddings.map((point, i) => {
                                 return <g key={`point_${i}`}>
                                     <text
-                                        x={...} y={...}
+                                        x={0} y={0}
                                         fontSize={similarExamples.length === 0 ? 9 : similarExamples.includes(i) || differentExamples.includes(i) ? 14 : 9}
-                                        opacity={...}
-                                        fill={...}
+                                        // opacity={...}
+                                        // fill={...}
                                     >
                                         {groundTruth[i]}
                                     </text>
                                 </g>
-                            })} */}
+                            })}
                             {/* end of pset 2.2 */}
                             <text x={width / 2} y={height - 2} textAnchor="middle"> Epoch {epoch} Layer {LAYER_INDEX}</text>
 
