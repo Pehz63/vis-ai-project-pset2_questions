@@ -28,28 +28,27 @@ export default function Inner({ data, model, predictions, epoch }) {
 
     const normalizeEmbedding = (embedding) => {
         // pset 2.1: normalize both x, y the range [-1, 1]
+        // Find the min and max values for x and y coordinates
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
 
-        // Find the min and max values for x and y across all points in the embedding
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-
-        for (const [x, y] of embedding) {
+        // Loop through the embedding to find the min/max for x and y
+        for (let i = 0; i < embedding.length; i++) {
+            const [x, y] = embedding[i];
             if (x < minX) minX = x;
             if (x > maxX) maxX = x;
             if (y < minY) minY = y;
             if (y > maxY) maxY = y;
         }
 
-        // Define a function to normalize a value to the range [-1, 1]
-        const normalize = (value, min, max) => {
-            return ((value - min) / (max - min)) * 2 - 1;
-        };
-
-        // Normalize all points in the embedding
-        return embedding.map(([x, y]) => [
-            normalize(x, minX, maxX), // normalize x to [-1, 1]
-            normalize(y, minY, maxY)  // normalize y to [-1, 1]
-        ]);
+        // Normalize each point's x and y coordinates to [-1, 1]
+        return embedding.map(([x, y]) => {
+            const normalizedX = 2 * (x - minX) / (maxX - minX) - 1;
+            const normalizedY = 2 * (y - minY) / (maxY - minY) - 1;
+            return [normalizedX, normalizedY];
+        });
     };
+
 
     const xScale = d3.scaleLinear().domain([-1, 1]).range([margin, width - margin]);
     const yScale = d3.scaleLinear().domain([-1, 1]).range([margin, height - margin]);
@@ -83,19 +82,24 @@ export default function Inner({ data, model, predictions, epoch }) {
 
                         <g key={`embedding`} transform={`translate(${(margin)}, 0)`}>
                             <rect x={0} y={0} width={width} height={height} fill='white' stroke="black" className="background"></rect>
-                            {/* pset 2.2: draw embeddings */}
-                            {embeddings.map((point, i) => {
-                                return <g key={`point_${i}`}>
-                                    <text
-                                        x={0} y={0}
-                                        fontSize={similarExamples.length === 0 ? 9 : similarExamples.includes(i) || differentExamples.includes(i) ? 14 : 9}
-                                        // opacity={...}
-                                        // fill={...}
-                                    >
-                                        {groundTruth[i]}
-                                    </text>
-                                </g>
+                            {/* pset 2.2: draw embeddings */}{embeddings.map((point, i) => {
+                                const isSimilar = similarExamples.includes(i);
+                                const isDifferent = differentExamples.includes(i);
+
+                                return (
+                                    <g key={`point_${i}`}>
+                                        <text
+                                            x={point[0]} y={point[1]}
+                                            fontSize={similarExamples.length === 0 ? 9 : (isSimilar || isDifferent) ? 14 : 9}
+                                            opacity={similarExamples.length === 0 || isSimilar || isDifferent ? 1 : 0.5} // Highlight similar or different points
+                                            fill={isSimilar ? 'green' : isDifferent ? 'red' : 'black'}  // Color similar as green, different as red, others as black
+                                        >
+                                            {groundTruth[i]}
+                                        </text>
+                                    </g>
+                                );
                             })}
+
                             {/* end of pset 2.2 */}
                             <text x={width / 2} y={height - 2} textAnchor="middle"> Epoch {epoch} Layer {LAYER_INDEX}</text>
 
